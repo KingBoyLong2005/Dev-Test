@@ -67,8 +67,16 @@ public class UIMainManager : MonoBehaviour
                 ShowMenu<UIPanelPause>();
                 break;
             case GameManager.eStateGame.GAME_OVER:
+            case GameManager.eStateGame.WIN:
+            case GameManager.eStateGame.LOSE:
+            UIPanelGameOver gameOverPanel = m_menuList.Where(menu => menu is UIPanelGameOver).Cast<UIPanelGameOver>().FirstOrDefault();
+
+                if (gameOverPanel != null)
+                {
+                    gameOverPanel.SetResult(state);
+                }
                 ShowMenu<UIPanelGameOver>();
-                break;
+                break; 
         }
     }
 
@@ -117,5 +125,19 @@ public class UIMainManager : MonoBehaviour
     internal void ShowGameMenu()
     {
         m_gameManager.SetState(GameManager.eStateGame.GAME_STARTED);
+    }
+
+    internal void LoadAutoplayWin()
+    {
+        m_gameManager.LoadLevel(GameManager.eLevelMode.MOVES, false);
+
+        m_gameManager.StartAutoplayWin();
+    }
+
+    internal void LoadAutoplayLose()
+    {
+        m_gameManager.LoadLevel(GameManager.eLevelMode.MOVES, false);
+
+        m_gameManager.StartAutoplayLose();
     }
 }

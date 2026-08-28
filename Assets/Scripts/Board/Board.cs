@@ -74,6 +74,30 @@ public class Board
 
     internal void Fill()
     {
+        int totalCells = boardSizeX * boardSizeY;
+
+        List<NormalItem.eNormalType> types = new List<NormalItem.eNormalType>();
+
+        for (int i = 0; i < totalCells / 3; i++)
+        {
+            NormalItem.eNormalType type =
+                Utils.GetRandomNormalType();
+
+            types.Add(type);
+            types.Add(type);
+            types.Add(type);
+        }
+
+        for (int i = types.Count - 1; i > 0; i--)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, i + 1);
+
+            NormalItem.eNormalType temp = types[i];
+            types[i] = types[randomIndex];
+            types[randomIndex] = temp;
+        }
+
+        int typeIndex = 0;
         for (int x = 0; x < boardSizeX; x++)
         {
             for (int y = 0; y < boardSizeY; y++)
@@ -81,31 +105,32 @@ public class Board
                 Cell cell = m_cells[x, y];
                 NormalItem item = new NormalItem();
 
-                List<NormalItem.eNormalType> types = new List<NormalItem.eNormalType>();
-                if (cell.NeighbourBottom != null)
-                {
-                    NormalItem nitem = cell.NeighbourBottom.Item as NormalItem;
-                    if (nitem != null)
-                    {
-                        types.Add(nitem.ItemType);
-                    }
-                }
+                // List<NormalItem.eNormalType> types = new List<NormalItem.eNormalType>();
+                // if (cell.NeighbourBottom != null)
+                // {
+                //     NormalItem nitem = cell.NeighbourBottom.Item as NormalItem;
+                //     if (nitem != null)
+                //     {
+                //         types.Add(nitem.ItemType);
+                //     }
+                // }
 
-                if (cell.NeighbourLeft != null)
-                {
-                    NormalItem nitem = cell.NeighbourLeft.Item as NormalItem;
-                    if (nitem != null)
-                    {
-                        types.Add(nitem.ItemType);
-                    }
-                }
+                // if (cell.NeighbourLeft != null)
+                // {
+                //     NormalItem nitem = cell.NeighbourLeft.Item as NormalItem;
+                //     if (nitem != null)
+                //     {
+                //         types.Add(nitem.ItemType);
+                //     }
+                // }
 
-                item.SetType(Utils.GetRandomNormalTypeExcept(types.ToArray()));
+                item.SetType(types[typeIndex]);
                 item.SetView();
                 item.SetViewRoot(m_root);
 
                 cell.Assign(item);
                 cell.ApplyItemPosition(false);
+                typeIndex++;
             }
         }
     }
@@ -673,5 +698,45 @@ public class Board
                 m_cells[x, y] = null;
             }
         }
+    }
+
+    internal List<Cell> GetCells()
+    {
+        List<Cell> cells = new List<Cell>();
+
+        for (int x = 0; x < boardSizeX; x++)
+        {
+            for (int y = 0; y < boardSizeY; y++)
+            {
+                cells.Add(m_cells[x, y]);
+            }
+        }
+
+        return cells;
+    }
+
+    internal bool ContainsCell(Cell cell)
+    {
+        return cell != null &&
+            cell.BoardX >= 0 &&
+            cell.BoardX < boardSizeX &&
+            cell.BoardY >= 0 &&
+            cell.BoardY < boardSizeY &&
+            m_cells[cell.BoardX, cell.BoardY] == cell;
+    }
+
+    internal Item TakeItem(Cell cell)
+    {
+        // if (cell == null || cell.Item == null)
+        // {
+        //     return null;
+        // }
+
+        Item item = cell.Item;
+
+        cell.Free();
+        item.SetCell(null);
+
+        return item;
     }
 }

@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
         GAME_STARTED,
         PAUSE,
         GAME_OVER,
+        WIN,
+        LOSE
     }
 
     private eStateGame m_state;
@@ -81,25 +83,51 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void LoadLevel(eLevelMode mode)
+    public void LoadLevel(eLevelMode mode, bool createCondition = true)
     {
+        if (m_boardController != null)
+        {
+            ClearLevel();
+        }
+
+        if (m_levelCondition != null)
+        {
+            m_levelCondition.ConditionCompleteEvent -= GameOver;
+            Destroy(m_levelCondition);
+            m_levelCondition = null;
+        }
+
         m_boardController = new GameObject("BoardController").AddComponent<BoardController>();
         m_boardController.StartGame(this, m_gameSettings);
 
-        if (mode == eLevelMode.MOVES)
+        if (createCondition && mode == eLevelMode.MOVES)
         {
             m_levelCondition = this.gameObject.AddComponent<LevelMoves>();
             m_levelCondition.Setup(m_gameSettings.LevelMoves, m_uiMenu.GetLevelConditionView(), m_boardController);
         }
-        else if (mode == eLevelMode.TIMER)
+        else if (createCondition && mode == eLevelMode.TIMER)
         {
             m_levelCondition = this.gameObject.AddComponent<LevelTime>();
-            m_levelCondition.Setup(m_gameSettings.LevelMoves, m_uiMenu.GetLevelConditionView(), this);
+            m_levelCondition.Setup(m_gameSettings.LevelTime, m_uiMenu.GetLevelConditionView(), this);
         }
 
-        m_levelCondition.ConditionCompleteEvent += GameOver;
+
+        if (m_levelCondition != null)
+        {
+            m_levelCondition.ConditionCompleteEvent += GameOver;
+        }
 
         State = eStateGame.GAME_STARTED;
+    }
+
+    public void StartAutoplayWin()
+    {
+        if (m_boardController != null) m_boardController.StartAutoplayWin();
+    }
+
+    public void StartAutoplayLose()
+    {
+        if (m_boardController != null) m_boardController.StartAutoplayLose();
     }
 
     public void GameOver()
@@ -119,6 +147,11 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator WaitBoardController()
     {
+        if (m_state == eStateGame.WIN || m_state == eStateGame.LOSE)
+        {
+            yield break;
+        }
+
         while (m_boardController.IsBusy)
         {
             yield return new WaitForEndOfFrame();
@@ -126,7 +159,10 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        State = eStateGame.GAME_OVER;
+        if (m_state != eStateGame.WIN && m_state != eStateGame.LOSE)
+        {
+            State = eStateGame.GAME_OVER;
+        }
 
         if (m_levelCondition != null)
         {
