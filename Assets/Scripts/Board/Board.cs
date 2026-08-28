@@ -105,25 +105,6 @@ public class Board
                 Cell cell = m_cells[x, y];
                 NormalItem item = new NormalItem();
 
-                // List<NormalItem.eNormalType> types = new List<NormalItem.eNormalType>();
-                // if (cell.NeighbourBottom != null)
-                // {
-                //     NormalItem nitem = cell.NeighbourBottom.Item as NormalItem;
-                //     if (nitem != null)
-                //     {
-                //         types.Add(nitem.ItemType);
-                //     }
-                // }
-
-                // if (cell.NeighbourLeft != null)
-                // {
-                //     NormalItem nitem = cell.NeighbourLeft.Item as NormalItem;
-                //     if (nitem != null)
-                //     {
-                //         types.Add(nitem.ItemType);
-                //     }
-                // }
-
                 item.SetType(types[typeIndex]);
                 item.SetView();
                 item.SetViewRoot(m_root);
@@ -727,10 +708,6 @@ public class Board
 
     internal Item TakeItem(Cell cell)
     {
-        // if (cell == null || cell.Item == null)
-        // {
-        //     return null;
-        // }
 
         Item item = cell.Item;
 
