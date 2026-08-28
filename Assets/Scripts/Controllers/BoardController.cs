@@ -25,6 +25,8 @@ public class BoardController : MonoBehaviour
 
     private GameSettings m_gameSettings;
 
+    private bool m_isTimeAttack;
+
     // private List<Cell> m_potentialMatch;
 
     // private float m_timeAfterFill;
@@ -37,13 +39,19 @@ public class BoardController : MonoBehaviour
 
     private readonly List<Transform> m_bottomCells = new List<Transform>();
 
+    private readonly Dictionary<Item, Cell> m_initialCells = new Dictionary<Item, Cell>();
+
     private Coroutine m_autoplayCoroutine;
 
-    public void StartGame(GameManager gameManager, GameSettings gameSettings)
+    public void StartGame(
+        GameManager gameManager,
+        GameSettings gameSettings,
+        bool isTimeAttack = false)
     {
         m_gameManager = gameManager;
 
         m_gameSettings = gameSettings;
+        m_isTimeAttack = isTimeAttack;
 
         m_gameManager.StateChangedAction += OnGameStateChange;
 
@@ -118,6 +126,19 @@ public class BoardController : MonoBehaviour
                 if (m_board.ContainsCell(cell))
                 {
                     MoveItemToBottom(cell);
+                }
+                else
+                {
+                    int bottomIndex = GetBottomItemIndex(hit.transform);
+                    if (bottomIndex < 0)
+                    {
+                        bottomIndex = GetBottomCellIndex(cell);
+                    }
+
+                    if (bottomIndex >= 0)
+                    {
+                        ReturnItemToBoard(bottomIndex);
+                    }
                 }
             }
         }
@@ -202,6 +223,8 @@ public class BoardController : MonoBehaviour
             return;
         }
 
+        m_initialCells[item] = cell;
+
         m_bottomItems.Add(item);
 
         IsBusy = true;
@@ -210,10 +233,19 @@ public class BoardController : MonoBehaviour
 
         int bottomIndex = m_bottomItems.Count - 1;
 
-        item.View.DOMove(
+        Sequence moveSequence = DOTween.Sequence();
+        moveSequence.Append(item.View.DOMove(
             m_bottomCells[bottomIndex].position,
-            0.2f
-        ).OnComplete(() =>
+            0.25f
+        ));
+        moveSequence.Join(item.View.DOPunchScale(
+            Vector3.one * 0.15f,
+            0.25f,
+            1,
+            0.5f
+        ));
+        moveSequence.SetEase(Ease.InOutQuad);
+        moveSequence.OnComplete(() =>
         {
             ClearBottomTriples();
 
@@ -221,6 +253,65 @@ public class BoardController : MonoBehaviour
 
             CheckEndGame();
         });
+    }
+
+    private int GetBottomCellIndex(Cell cell)
+    {
+        if (cell == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < m_bottomCells.Count; i++)
+        {
+            if (m_bottomCells[i] == cell.transform)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private int GetBottomItemIndex(Transform hitTransform)
+    {
+        for (int i = 0; i < m_bottomItems.Count; i++)
+        {
+            Transform itemView = m_bottomItems[i].View;
+            if (itemView == hitTransform ||
+                (itemView != null && hitTransform.IsChildOf(itemView)))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void ReturnItemToBoard(int bottomIndex)
+    {
+        if (bottomIndex < 0 || bottomIndex >= m_bottomItems.Count)
+        {
+            return;
+        }
+
+        Item item = m_bottomItems[bottomIndex];
+        if (!m_initialCells.TryGetValue(item, out Cell targetCell) ||
+            !targetCell.IsEmpty || item.View == null)
+        {
+            return;
+        }
+
+        m_bottomItems.RemoveAt(bottomIndex);
+        targetCell.Assign(item);
+        IsBusy = true;
+
+        item.View.DOMove(targetCell.transform.position, 0.25f)
+            .OnComplete(() =>
+            {
+                MoveBottomItemsIntoEmptyCells();
+                IsBusy = false;
+            });
     }
 
     private void ClearBottomTriples()
@@ -298,7 +389,7 @@ public class BoardController : MonoBehaviour
                 GameManager.eStateGame.WIN
             );
         }
-        else if (m_bottomItems.Count >=
+        else if (!m_isTimeAttack && m_bottomItems.Count >=
                  m_bottomCells.Count)
         {
             m_gameManager.SetState(
@@ -559,6 +650,7 @@ public class BoardController : MonoBehaviour
         m_board.Clear();
         m_bottomItems.Clear();
         m_bottomCells.Clear();
+        m_initialCells.Clear();
     }
 
     // private void ShowHint()

@@ -10,6 +10,8 @@ public class UIPanelMain : MonoBehaviour, IMenu
 
     [SerializeField] private Button btnMoves;
 
+    [SerializeField] private Button btnTimeAttack;
+
     [SerializeField] private Button btnAutoplayWin;
     [SerializeField] private Button btnAutoplayLose;
 
@@ -19,6 +21,7 @@ public class UIPanelMain : MonoBehaviour, IMenu
     {
         btnMoves.onClick.AddListener(OnClickMoves);
         btnTimer.onClick.AddListener(OnClickTimer);
+        btnTimeAttack.onClick.AddListener(OnClickTimeAttack);
         btnAutoplayWin.onClick.AddListener(OnClickAutoplayWin);
         btnAutoplayLose.onClick.AddListener(OnClickAutoplayLose);
     }
@@ -27,6 +30,7 @@ public class UIPanelMain : MonoBehaviour, IMenu
     {
         if (btnMoves) btnMoves.onClick.RemoveAllListeners();
         if (btnTimer) btnTimer.onClick.RemoveAllListeners();
+        if (btnTimeAttack) btnTimeAttack.onClick.RemoveAllListeners();
         if (btnAutoplayWin)btnAutoplayWin.onClick.RemoveAllListeners();
         if (btnAutoplayLose)btnAutoplayLose.onClick.RemoveAllListeners();
     }
@@ -44,6 +48,11 @@ public class UIPanelMain : MonoBehaviour, IMenu
     private void OnClickMoves()
     {
         m_mngr.LoadLevelMoves();
+    }
+
+    private void OnClickTimeAttack()
+    {
+        m_mngr.LoadTimeAttack();
     }
 
     private void OnClickAutoplayWin()

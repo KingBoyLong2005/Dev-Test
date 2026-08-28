@@ -17,4 +17,6 @@ public class GameSettings : ScriptableObject
     public float TimeForHint = 5f;
 
     public int BottomCellCount = 7;
+
+    public float TimeAttackDuration = 60f;
 }

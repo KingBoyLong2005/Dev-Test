@@ -98,7 +98,7 @@ public class Item
     {
         if (View)
         {
-            View.DOScale(0.1f, 0.1f).OnComplete(
+            View.DOScale(Vector3.zero, 0.2f).OnComplete(
                 () =>
                 {
                     GameObject.Destroy(View.gameObject);

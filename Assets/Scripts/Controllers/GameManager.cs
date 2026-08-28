@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
 
     public enum eLevelMode
     {
+        TIMEATTACK,
         TIMER,
         MOVES
     }
@@ -98,7 +99,11 @@ public class GameManager : MonoBehaviour
         }
 
         m_boardController = new GameObject("BoardController").AddComponent<BoardController>();
-        m_boardController.StartGame(this, m_gameSettings);
+        m_boardController.StartGame(
+            this,
+            m_gameSettings,
+            mode == eLevelMode.TIMEATTACK
+        );
 
         if (createCondition && mode == eLevelMode.MOVES)
         {
@@ -109,6 +114,11 @@ public class GameManager : MonoBehaviour
         {
             m_levelCondition = this.gameObject.AddComponent<LevelTime>();
             m_levelCondition.Setup(m_gameSettings.LevelTime, m_uiMenu.GetLevelConditionView(), this);
+        }
+        else if (createCondition && mode == eLevelMode.TIMEATTACK)
+        {
+            m_levelCondition = this.gameObject.AddComponent<LevelTime>();
+            m_levelCondition.Setup(m_gameSettings.TimeAttackDuration, m_uiMenu.GetLevelConditionView(), this);
         }
 
 

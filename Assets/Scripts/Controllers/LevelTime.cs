@@ -30,7 +30,7 @@ public class LevelTime : LevelCondition
 
         UpdateText();
 
-        if (m_time <= -1f)
+        if (m_time <= 0f)
         {
             OnConditionComplete();
         }

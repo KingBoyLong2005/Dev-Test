@@ -11,3 +11,14 @@ Task 2 (Branch 2)
 - Khi 5 bottom cells đều đầy, người chơi thua và hiển thị màn hình "YOU LOSE".
 - Home screen có nút Autoplay Win. Khi bấm, game tự động chơi với độ trễ 0,5 giây giữa mỗi hành động cho đến khi thắng.
 - Home screen có nút Autoplay Lose. Khi bấm, game tự động chơi với độ trễ 0,5 giây giữa mỗi hành động cho đến khi thua.
+
+Task 3 (Branch 3)
+
+- Thêm chế độ chơi Time Attack riêng.
+- Thêm nút Time Attack vào Home Screen.
+- Thời gian chơi Time Attack là 1 phút.
+- Người chơi không bị thua khi 5 bottom cells bị đầy.
+- Người chơi có thể chạm vào item trong bottom cells để đưa item về vị trí ban đầu trên board.
+- Người chơi sẽ thua nếu không dọn sạch board trước khi hết 1 phút.
+- Thêm animation khi item di chuyển xuống bottom cells.
+- Thêm animation scale item về 0 khi 3 item giống nhau bị xóa.
